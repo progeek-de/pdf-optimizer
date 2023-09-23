@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdf-optimizer
+  labels:
+    app: pdf-optimizer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdf-optimizer
+  template:
+    metadata:
+      name: pdf-optimizer
+      labels:
+        app: pdf-optimizer
+    spec:
+      containers:
+        - name: pdf-optimizer
+          image: registry.gitlab.com/progeek-de/pdf-optimizer
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: pdf-optimizer
+            - configMapRef:
+                name: pdf-optimizer
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: registry.gitlab.com

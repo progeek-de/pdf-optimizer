@@ -1,7 +1,14 @@
 import {useState} from 'react'
-import './App.css'
 import {_GSPS2PDF} from "./lib/background.js";
+import {Box, Button, Input, Typography} from "@mui/material";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import DownloadIcon from '@mui/icons-material/Download';
 
+Object.defineProperty(Number.prototype,'fileSize',{value:function(a,b,c,d){
+        return (a=a?[1e3,'k','B']:[1024,'K','iB'],b=Math,c=b.log,
+                d=c(this)/c(a[0])|0,this/b.pow(a[0],d)).toFixed(2)
+            +' '+(d?(a[1]+'MGTPEZY')[--d]+a[2]:'Bytes');
+    },writable:false,enumerable:false});
 
 function loadPDFData(response, filename) {
     return new Promise((resolve, reject) => {
@@ -12,18 +19,47 @@ function loadPDFData(response, filename) {
             window.URL.revokeObjectURL(response.pdfDataURL);
             const blob = new Blob([xhr.response], {type: "application/pdf"});
             const pdfURL = window.URL.createObjectURL(blob);
-            resolve({pdfURL})
+            resolve({pdfURL, size: blob.size})
         };
         xhr.send();
     })
 
 }
 
+function getFileSizeColor(size) {
+    if(size === 0) {
+        return "white"
+    }
+
+    if(size > 5*1024*1024) {
+        return "red"
+    } else if(size > 2*1024*1024) {
+        return "orange"
+    }
+
+    return "green"
+}
+
+const SizeComponent = ({ source, target }) => {
+    if(source == 0) {
+        return <div />
+    }
+
+    return (
+        <Box sx={{ mb: 1 }}>
+            <Typography as="span" sx={{ fontSize: "200%", color: getFileSizeColor(source)}}>{ source > 0 ? source.fileSize() : "?" }</Typography>
+            <ArrowForwardIosIcon sx={{ fontSize: "140%", mx: 2 }}/>
+            <Typography as="span" sx={{ fontSize: "200%", color: getFileSizeColor(target)}}>{ target > 0 ? target.fileSize() : "?" }</Typography>
+        </Box>
+    )
+}
 
 function App() {
     const [state, setState] = useState("init")
     const [file, setFile] = useState(undefined)
     const [downloadLink, setDownloadLink] = useState(undefined)
+    const [sourceSize, setSourceSize] = useState(0)
+    const [targetSize, setTargetSize] = useState(0)
 
     function compressPDF(pdf, filename) {
         const dataObject = {psDataURL: pdf}
@@ -31,7 +67,8 @@ function App() {
             (element) => {
                 console.log(element);
                 setState("toBeDownloaded")
-                loadPDFData(element, filename).then(({pdfURL}) => {
+                loadPDFData(element, filename).then(({pdfURL, size}) => {
+                    setTargetSize(size)
                     setDownloadLink(pdfURL)
                 });
             },
@@ -43,6 +80,7 @@ function App() {
         const file = event.target.files[0]
         const url = window.URL.createObjectURL(file);
         setFile({filename: file.name, url})
+        setSourceSize(file.size)
         setState('selected')
     };
 
@@ -57,64 +95,44 @@ function App() {
     let minFileName = file && file.filename && file.filename.replace('.pdf', '-min.pdf');
     return (
         <>
-            <h1>Free Browser side PDF-Compressor</h1>
-            <p>
-                The best tool I know to compress PDF is <a target={"_blank"}
-                                                           href={"https://ghostscript.com/"}>Ghostscript</a> but this
-                was
-                not running in the browser. Until <a target={"_blank"}
-                                                     href={"https://github.com/ochachacha/ps-wasm"}>Ochachacha</a> ported
-                the lib in <a target={"_blank"}
-                              href={"https://webassembly.org/"}>Webassembly</a>.</p>
-            <p>
-                Based on his amazing work, I built this <a
-                href={"https://github.com/laurentmmeyer/ghostscript-pdf-compress.wasm"} target={"_blank"}>demo</a>.
-                It's running on Vite and React. It imports the WASM on the fly when you want compress a PDF.
-            </p>
-            <p>
-                Be aware that the Webassembly binary is weighting <b>18MB</b>.
-            </p>
-            <p><i>Secure and private by design: the data never leaves your computer.</i></p>
-            {state !== "loading" && state !== "toBeDownloaded" &&
-                <form onSubmit={onSubmit}>
-                    <input type="file" accept={"application/pdf"} name="file"
-                           onChange={changeHandler} id={"file"}/>
-                    <div className={"label padded-button"}>
-                        <label
-                            htmlFor={"file"}>{!file || !file.filename ? `Choose PDF to compress` : file.filename}</label>
-                    </div>
-                    {state === 'selected' &&
-                        <div className={"success-button padded-button padding-top"}>
-                            <input className={"button"} type="submit"
-                                   value={"🚀 Compress this PDF in the browser! 🚀"}/>
-                        </div>
-                    }
+            <SizeComponent source={sourceSize} target={targetSize} />
 
-                </form>}
-            {state === "loading" && "Loading...."}
-            {state === "toBeDownloaded" &&
-                <>
-                    <div className={"success-button padded-button"}>
-                        <a href={downloadLink} download={minFileName}>
-                            {`📄 Download ${minFileName} 📄`}
-                        </a>
-                    </div>
-                    <div className={"blue padded-button padding-top"}>
-                        <a href={'./'}>
-                            {`🔁 Compress another PDF 🔁`}
-                        </a>
-                    </div>
-                </>
-            }
-            <p>
-                Everything is open-source and you can contribute <a
-                href={"https://github.com/laurentmmeyer/ghostscript-pdf-compress.wasm"} target={"_blank"}>here</a>.
-            </p>
-            <br/>
-            <p><i>This website uses no tracking, no cookies, no adtech.</i></p>
-            <p>
-                <a target={"_blank"} href={"https://meyer-laurent.com"}>About me</a>
-            </p>
+            <Box sx={{ backgroundColor: "#0F1A21", p: 5, mt: 2, width: "100%", boxShadow: "0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12);" }}>
+                {state !== "loading" && state !== "toBeDownloaded" &&
+                    <Box as="form" onSubmit={onSubmit}>
+                        <input type="file" accept={"application/pdf"} name="file"
+                               onChange={changeHandler} id={"file"} style={{ display: "none" }}/>
+                        <Box>
+                            <label htmlFor={"file"}>
+                                <Button fullWidth variant="contained" component="span" color={ state == "selected" ? "warning" : "primary"}>
+                                {!file || !file.filename ? `Die PDF-Datei auswählen` : (`${file.filename}`)}
+                                </Button>
+                            </label>
+                        </Box>
+                        {state === 'selected' &&
+                            <Box sx={{ mt: 1 }}>
+                                <Button variant="contained" type="submit" fullWidth>Optimierung starten!</Button>
+                            </Box>
+                        }
+
+                    </Box>}
+                {state === "loading" && "Wird geladen...."}
+                {state === "toBeDownloaded" &&
+                    <>
+                        <Box>
+                            <Button variant="contained" color="success" href={downloadLink} download={minFileName} fullWidth>
+                                <DownloadIcon sx={{ mr: 1 }}/> {`${minFileName} herunterladen`}
+                            </Button>
+                        </Box>
+                        <Box sx={{ mt: 1 }}>
+                            <Button variant="contained" href={'./'} fullWidth>
+                                {`Weitere PDF-Datei optimieren`}
+                            </Button>
+                        </Box>
+                    </>
+                }
+            </Box>
+
         </>
     )
 }
