@@ -3,7 +3,7 @@ FROM node:18 AS build
 WORKDIR /app
 
 COPY package.json yarn.lock /app/
-RUN yarn --platform=linux --arch=x64 install --production
+RUN yarn --platform=linux --arch=x64 install
 
 COPY . /app/
 RUN yarn build

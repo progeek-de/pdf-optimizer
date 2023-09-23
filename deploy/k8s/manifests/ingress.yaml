@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: progeek.de
+    - host: pdf.progeek.de
       http:
         paths:
           - path: /

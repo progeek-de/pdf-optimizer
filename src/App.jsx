@@ -1,14 +1,17 @@
-import {useState} from 'react'
+import {useCallback, useMemo, useState} from 'react'
 import {_GSPS2PDF} from "./lib/background.js";
-import {Box, Button, Input, Typography} from "@mui/material";
+import {Box, Button, Input, LinearProgress, Typography} from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DownloadIcon from '@mui/icons-material/Download';
+import DescriptionIcon from '@mui/icons-material/Description';
 
-Object.defineProperty(Number.prototype,'fileSize',{value:function(a,b,c,d){
-        return (a=a?[1e3,'k','B']:[1024,'K','iB'],b=Math,c=b.log,
-                d=c(this)/c(a[0])|0,this/b.pow(a[0],d)).toFixed(2)
-            +' '+(d?(a[1]+'MGTPEZY')[--d]+a[2]:'Bytes');
-    },writable:false,enumerable:false});
+Object.defineProperty(Number.prototype, 'fileSize', {
+    value: function (a, b, c, d) {
+        return (a = a ? [1e3, 'k', 'B'] : [1024, 'K', 'iB'], b = Math, c = b.log,
+                d = c(this) / c(a[0]) | 0, this / b.pow(a[0], d)).toFixed(2)
+            + ' ' + (d ? (a[1] + 'MGTPEZY')[--d] + a[2] : 'Bytes');
+    }, writable: false, enumerable: false
+});
 
 function loadPDFData(response, filename) {
     return new Promise((resolve, reject) => {
@@ -27,29 +30,35 @@ function loadPDFData(response, filename) {
 }
 
 function getFileSizeColor(size) {
-    if(size === 0) {
+    if (size === 0) {
         return "white"
     }
 
-    if(size > 5*1024*1024) {
+    if (size > 5 * 1024 * 1024) {
         return "red"
-    } else if(size > 2*1024*1024) {
+    } else if (size > 2 * 1024 * 1024) {
         return "orange"
     }
 
     return "green"
 }
 
-const SizeComponent = ({ source, target }) => {
-    if(source == 0) {
-        return <div />
+const SizeComponent = ({source, target}) => {
+    if (source == 0) {
+        return <div/>
     }
 
     return (
-        <Box sx={{ mb: 1 }}>
-            <Typography as="span" sx={{ fontSize: "200%", color: getFileSizeColor(source)}}>{ source > 0 ? source.fileSize() : "?" }</Typography>
-            <ArrowForwardIosIcon sx={{ fontSize: "140%", mx: 2 }}/>
-            <Typography as="span" sx={{ fontSize: "200%", color: getFileSizeColor(target)}}>{ target > 0 ? target.fileSize() : "?" }</Typography>
+        <Box sx={{mb: 1}}>
+            <Typography as="span" sx={{
+                fontSize: "200%",
+                color: getFileSizeColor(source)
+            }}>{source > 0 ? source.fileSize() : "?"}</Typography>
+            <ArrowForwardIosIcon sx={{fontSize: "140%", mx: 2}}/>
+            <Typography as="span" sx={{
+                fontSize: "200%",
+                color: getFileSizeColor(target)
+            }}>{target > 0 ? target.fileSize() : "?"}</Typography>
         </Box>
     )
 }
@@ -60,21 +69,23 @@ function App() {
     const [downloadLink, setDownloadLink] = useState(undefined)
     const [sourceSize, setSourceSize] = useState(0)
     const [targetSize, setTargetSize] = useState(0)
+    const [status, setStatus] = useState("Wird geladen ...")
 
-    function compressPDF(pdf, filename) {
+    const compressPDF = useCallback((pdf, filename) => {
         const dataObject = {psDataURL: pdf}
         _GSPS2PDF(dataObject,
             (element) => {
-                console.log(element);
                 setState("toBeDownloaded")
                 loadPDFData(element, filename).then(({pdfURL, size}) => {
                     setTargetSize(size)
                     setDownloadLink(pdfURL)
                 });
             },
-            (...args) => console.log("Progress:", JSON.stringify(args)),
-            (element) => console.log("Status Update:", JSON.stringify(element)))
-    }
+            (...args) => {
+            },
+            (text) => setStatus(text),
+        )
+    }, [])
 
     const changeHandler = (event) => {
         const file = event.target.files[0]
@@ -95,36 +106,47 @@ function App() {
     let minFileName = file && file.filename && file.filename.replace('.pdf', '-min.pdf');
     return (
         <>
-            <SizeComponent source={sourceSize} target={targetSize} />
+            <SizeComponent source={sourceSize} target={targetSize}/>
 
-            <Box sx={{ backgroundColor: "#0F1A21", p: 5, mt: 2, width: "100%", boxShadow: "0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12);" }}>
+            <Box sx={{
+                backgroundColor: "#0F1A21",
+                p: 5,
+                mt: 2,
+                width: "100%",
+                boxShadow: "0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12);"
+            }}>
                 {state !== "loading" && state !== "toBeDownloaded" &&
                     <Box as="form" onSubmit={onSubmit}>
                         <input type="file" accept={"application/pdf"} name="file"
-                               onChange={changeHandler} id={"file"} style={{ display: "none" }}/>
+                               onChange={changeHandler} id={"file"} style={{display: "none"}}/>
                         <Box>
                             <label htmlFor={"file"}>
-                                <Button fullWidth variant="contained" component="span" color={ state == "selected" ? "warning" : "primary"}>
-                                {!file || !file.filename ? `Die PDF-Datei auswählen` : (`${file.filename}`)}
+                                <Button fullWidth variant="contained" component="span"
+                                        color={state == "selected" ? "warning" : "primary"}>
+                                    <>
+                                    {file && file.filename && <DescriptionIcon sx={{mr: 1}}/>}
+                                    {!file || !file.filename ? `Die PDF-Datei auswählen` : file.filename}
+                                    </>
                                 </Button>
                             </label>
                         </Box>
                         {state === 'selected' &&
-                            <Box sx={{ mt: 1 }}>
+                            <Box sx={{mt: 1}}>
                                 <Button variant="contained" type="submit" fullWidth>Optimierung starten!</Button>
                             </Box>
                         }
 
                     </Box>}
-                {state === "loading" && "Wird geladen...."}
+                {state === "loading" && <LinearProgress color="secondary"/>}
                 {state === "toBeDownloaded" &&
                     <>
                         <Box>
-                            <Button variant="contained" color="success" href={downloadLink} download={minFileName} fullWidth>
-                                <DownloadIcon sx={{ mr: 1 }}/> {`${minFileName} herunterladen`}
+                            <Button variant="contained" color="success" href={downloadLink} download={minFileName}
+                                    fullWidth>
+                                <DownloadIcon sx={{mr: 1}}/> {`${minFileName} herunterladen`}
                             </Button>
                         </Box>
-                        <Box sx={{ mt: 1 }}>
+                        <Box sx={{mt: 1}}>
                             <Button variant="contained" href={'./'} fullWidth>
                                 {`Weitere PDF-Datei optimieren`}
                             </Button>

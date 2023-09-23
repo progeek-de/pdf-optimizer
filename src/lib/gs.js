@@ -17,7 +17,7 @@
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
 var Module = typeof window.Module !== 'undefined' ? window.Module : typeof Module !== 'undefined' ? Module : {};
-console.log(window.Module);
+// console.log(window.Module);
 // --pre-jses are emitted after the Module integration code, so that they can
 // refer to Module (if they choose; they can also define Module)
 // {{PRE_JSES}}
@@ -7721,7 +7721,7 @@ function run(args) {
     }
 
     if (Module['setStatus']) {
-        Module['setStatus']('Running...');
+        Module['setStatus']('Verarbeitung läuft...');
         setTimeout(function () {
             setTimeout(function () {
                 Module['setStatus']('');

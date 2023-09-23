@@ -19,11 +19,6 @@ spec:
         - name: pdf-optimizer
           image: registry.gitlab.com/progeek-de/pdf-optimizer
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: pdf-optimizer
-            - configMapRef:
-                name: pdf-optimizer
       restartPolicy: Always
       imagePullSecrets:
         - name: registry.gitlab.com

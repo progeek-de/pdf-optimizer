@@ -73,6 +73,7 @@ export function _GSPS2PDF(dataStruct, responseCallback, progressCallback, status
             preRun: [function () {
                 const FS = window.FS;
                 var data = FS.writeFile('input.pdf', new Uint8Array(xhr.response));
+                statusUpdateCallback("Verarbeitung läuft...")
             }],
             postRun: [function () {
                 const FS = window.FS;
@@ -109,7 +110,7 @@ export function _GSPS2PDF(dataStruct, responseCallback, progressCallback, status
             },
             totalDependencies: 0
         };
-        Module.setStatus('Loading Ghostscript...');
+        Module.setStatus('Verarbeitung läuft...');
         window.Module = Module;
         loadScript('gs.js', null);
     };
