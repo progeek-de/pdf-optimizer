@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useState} from 'react'
-import {_GSPS2PDF} from "./lib/background.js";
+import {optimizePDF} from "./lib/background.js";
 import {Box, Button, Input, LinearProgress, Typography} from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -73,17 +73,14 @@ function App() {
 
     const compressPDF = useCallback((pdf, filename) => {
         const dataObject = {psDataURL: pdf}
-        _GSPS2PDF(dataObject,
+        optimizePDF(dataObject,
             (element) => {
                 setState("toBeDownloaded")
                 loadPDFData(element, filename).then(({pdfURL, size}) => {
                     setTargetSize(size)
                     setDownloadLink(pdfURL)
                 });
-            },
-            (...args) => {
-            },
-            (text) => setStatus(text),
+            }
         )
     }, [])
 
