@@ -11,8 +11,6 @@ import {Box, Container, CssBaseline, ThemeProvider, Typography} from "@mui/mater
 import theme from "./theme.js";
 
 import Logo from "./images/progeek-logo.svg?react"
-import {DevSupport} from "@react-buddy/ide-toolbox";
-import {ComponentPreviews, useInitial} from "./dev/index.js";
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
@@ -42,11 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                         und Datenschutz</Typography> zu gewährleisten.
                     </Typography>
                 </Box>
-                <DevSupport ComponentPreviews={ComponentPreviews}
-                            useInitialHook={useInitial}
-                >
-                    <App/>
-                </DevSupport>
+                <App/>
                 <Box sx={{my: 2}}>
                     <Typography>
                         Hinweis: Dieser Webservice dient nur zu Demonstrationszwecken und es wird keine Gewähr für die
