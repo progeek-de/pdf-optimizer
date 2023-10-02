@@ -1,9 +1,10 @@
-import {useCallback, useMemo, useState} from 'react'
-import {optimizePDF} from "./lib/background.js";
-import {Box, Button, Input, LinearProgress, Typography} from "@mui/material";
+import {useCallback, useEffect, useRef, useState} from 'react'
+import BackgroundWorker from "./lib/woker.js?worker"
+import {Box, Button, LinearProgress, Typography} from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DownloadIcon from '@mui/icons-material/Download';
 import DescriptionIcon from '@mui/icons-material/Description';
+import {createInitAction, createProcessAction} from "./lib/worker-utils.js";
 
 Object.defineProperty(Number.prototype, 'fileSize', {
     value: function (a, b, c, d) {
@@ -13,7 +14,7 @@ Object.defineProperty(Number.prototype, 'fileSize', {
     }, writable: false, enumerable: false
 });
 
-function loadPDFData(response, filename) {
+function loadPDFData(response) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", response.pdfDataURL);
@@ -70,18 +71,29 @@ function App() {
     const [sourceSize, setSourceSize] = useState(0)
     const [targetSize, setTargetSize] = useState(0)
     const [status, setStatus] = useState("Wird geladen ...")
+    const workerRef = useRef(null)
 
-    const compressPDF = useCallback((pdf, filename) => {
-        const dataObject = {psDataURL: pdf}
-        optimizePDF(dataObject,
-            (element) => {
+    useEffect(() => {
+        workerRef.current = new BackgroundWorker()
+        workerRef.current.addEventListener("message", (msg) => {
+            // console.log("Worker ->", msg.data)
+
+            if(msg.data.type === "RESULT") {
                 setState("toBeDownloaded")
-                loadPDFData(element, filename).then(({pdfURL, size}) => {
+                loadPDFData(msg.data.payload).then(({pdfURL, size}) => {
                     setTargetSize(size)
                     setDownloadLink(pdfURL)
                 });
             }
-        )
+        })
+
+        workerRef.current.postMessage(createInitAction())
+
+    }, [])
+
+    const compressPDF = useCallback((pdf, filename) => {
+        const dataObject = {psDataURL: pdf}
+        workerRef.current.postMessage(createProcessAction(dataObject))
     }, [])
 
     const changeHandler = (event) => {
