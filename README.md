@@ -1,6 +1,7 @@
 # PROGEEK PDF Optimizer
 
 Based on [laurentmmeyer/ghostscript-pdf-compress.wasm](https://github.com/laurentmmeyer/ghostscript-pdf-compress.wasm)
+
 Demo: <https://pdf.progeek.de>
 
 ## Fast PDF resizing
