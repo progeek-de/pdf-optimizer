@@ -1,15 +1,15 @@
-import {useCallback, useEffect, useRef, useState} from 'react'
-import BackgroundWorker from "./lib/woker.js?worker"
-import {Box, Button, LinearProgress, Typography} from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from 'react'
+import BackgroundWorker from "./lib/worker.js?worker"
+import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DownloadIcon from '@mui/icons-material/Download';
 import DescriptionIcon from '@mui/icons-material/Description';
-import {createInitAction, createProcessAction} from "./lib/worker-utils.js";
+import { createInitAction, createProcessAction } from "./lib/worker-utils.js";
 
 Object.defineProperty(Number.prototype, 'fileSize', {
     value: function (a, b, c, d) {
         return (a = a ? [1e3, 'k', 'B'] : [1024, 'K', 'iB'], b = Math, c = b.log,
-                d = c(this) / c(a[0]) | 0, this / b.pow(a[0], d)).toFixed(2)
+            d = c(this) / c(a[0]) | 0, this / b.pow(a[0], d)).toFixed(2)
             + ' ' + (d ? (a[1] + 'MGTPEZY')[--d] + a[2] : 'Bytes');
     }, writable: false, enumerable: false
 });
@@ -21,9 +21,9 @@ function loadPDFData(response) {
         xhr.responseType = "arraybuffer";
         xhr.onload = function () {
             window.URL.revokeObjectURL(response.pdfDataURL);
-            const blob = new Blob([xhr.response], {type: "application/pdf"});
+            const blob = new Blob([xhr.response], { type: "application/pdf" });
             const pdfURL = window.URL.createObjectURL(blob);
-            resolve({pdfURL, size: blob.size})
+            resolve({ pdfURL, size: blob.size })
         };
         xhr.send();
     })
@@ -44,18 +44,18 @@ function getFileSizeColor(size) {
     return "green"
 }
 
-const SizeComponent = ({source, target}) => {
+const SizeComponent = ({ source, target }) => {
     if (source == 0) {
-        return <div/>
+        return <div />
     }
 
     return (
-        <Box sx={{mb: 1}}>
+        <Box sx={{ mb: 1 }}>
             <Typography as="span" sx={{
                 fontSize: "200%",
                 color: getFileSizeColor(source)
             }}>{source > 0 ? source.fileSize() : "?"}</Typography>
-            <ArrowForwardIosIcon sx={{fontSize: "140%", mx: 2}}/>
+            <ArrowForwardIosIcon sx={{ fontSize: "140%", mx: 2 }} />
             <Typography as="span" sx={{
                 fontSize: "200%",
                 color: getFileSizeColor(target)
@@ -78,9 +78,9 @@ function App() {
         workerRef.current.addEventListener("message", (msg) => {
             // console.log("Worker ->", msg.data)
 
-            if(msg.data.type === "RESULT") {
+            if (msg.data.type === "RESULT") {
                 setState("toBeDownloaded")
-                loadPDFData(msg.data.payload).then(({pdfURL, size}) => {
+                loadPDFData(msg.data.payload).then(({ pdfURL, size }) => {
                     setTargetSize(size)
                     setDownloadLink(pdfURL)
                 });
@@ -92,21 +92,21 @@ function App() {
     }, [])
 
     const compressPDF = useCallback((pdf, filename) => {
-        const dataObject = {psDataURL: pdf}
+        const dataObject = { psDataURL: pdf }
         workerRef.current.postMessage(createProcessAction(dataObject))
     }, [])
 
     const changeHandler = (event) => {
         const file = event.target.files[0]
         const url = window.URL.createObjectURL(file);
-        setFile({filename: file.name, url})
+        setFile({ filename: file.name, url })
         setSourceSize(file.size)
         setState('selected')
     };
 
     const onSubmit = (event) => {
         event.preventDefault();
-        const {filename, url} = file;
+        const { filename, url } = file;
         compressPDF(url, filename)
         setState("loading")
         return false;
@@ -115,7 +115,7 @@ function App() {
     let minFileName = file && file.filename && file.filename.replace('.pdf', '-min.pdf');
     return (
         <>
-            <SizeComponent source={sourceSize} target={targetSize}/>
+            <SizeComponent source={sourceSize} target={targetSize} />
 
             <Box sx={{
                 backgroundColor: "#0F1A21",
@@ -127,35 +127,35 @@ function App() {
                 {state !== "loading" && state !== "toBeDownloaded" &&
                     <Box as="form" onSubmit={onSubmit}>
                         <input type="file" accept={"application/pdf"} name="file"
-                               onChange={changeHandler} id={"file"} style={{display: "none"}}/>
+                            onChange={changeHandler} id={"file"} style={{ display: "none" }} />
                         <Box>
                             <label htmlFor={"file"}>
                                 <Button fullWidth variant="contained" component="span"
-                                        color={state == "selected" ? "warning" : "primary"}>
+                                    color={state == "selected" ? "warning" : "primary"}>
                                     <>
-                                    {file && file.filename && <DescriptionIcon sx={{mr: 1}}/>}
-                                    {!file || !file.filename ? `Die PDF-Datei auswählen` : file.filename}
+                                        {file && file.filename && <DescriptionIcon sx={{ mr: 1 }} />}
+                                        {!file || !file.filename ? `Die PDF-Datei auswählen` : file.filename}
                                     </>
                                 </Button>
                             </label>
                         </Box>
                         {state === 'selected' &&
-                            <Box sx={{mt: 1}}>
+                            <Box sx={{ mt: 1 }}>
                                 <Button variant="contained" type="submit" fullWidth>Optimierung starten!</Button>
                             </Box>
                         }
 
                     </Box>}
-                {state === "loading" && <LinearProgress color="secondary"/>}
+                {state === "loading" && <LinearProgress color="secondary" />}
                 {state === "toBeDownloaded" &&
                     <>
                         <Box>
                             <Button variant="contained" color="success" href={downloadLink} download={minFileName}
-                                    fullWidth>
-                                <DownloadIcon sx={{mr: 1}}/> {`${minFileName} herunterladen`}
+                                fullWidth>
+                                <DownloadIcon sx={{ mr: 1 }} /> {`${minFileName} herunterladen`}
                             </Button>
                         </Box>
-                        <Box sx={{mt: 1}}>
+                        <Box sx={{ mt: 1 }}>
                             <Button variant="contained" href={'./'} fullWidth>
                                 {`Weitere PDF-Datei optimieren`}
                             </Button>

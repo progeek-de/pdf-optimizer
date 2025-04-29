@@ -1,0 +1,6 @@
+export const createInitAction = () => ({ type: "INIT" })
+export const createMessageAction = (msg) => ({ type: "MSG", payload: msg })
+export const createProcessAction = (file) => ({ type: "PROCESS", payload: file })
+export const createResultAction = (res) => ({ type: "RESULT", payload: res })
+export const createSatusAction = (status) => ({ type: "STATUS", payload: status })
+export const createErrorAction = (error) => ({ type: "ERROR", payload: error })
