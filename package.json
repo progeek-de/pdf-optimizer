@@ -1,8 +1,8 @@
 {
   "name": "@progeek/pdf-compress",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "version": "1.2.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,11 +15,17 @@
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@tanstack/react-router": "^1.119.0",
+    "@tanstack/react-router-devtools": "^1.119.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
     "vite-plugin-svgr": "^4.0.0"
   },
   "devDependencies": {
+    "@tanstack/router-plugin": "^1.119.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vite-pwa/assets-generator": "^1.0.0",

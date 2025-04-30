@@ -1,9 +1,10 @@
-import {createErrorAction, createMessageAction, createResultAction, createSatusAction} from "./worker-utils.js";
-import GS from "./gs.js";
+import { createErrorAction, createMessageAction, createResultAction, createSatusAction } from "./worker-utils";
+//@ts-ignore
+import GS from "./gs";
 
 postMessage(createMessageAction("Background worker initialized"))
 
-function optimizePDF(dataStruct) {
+function optimizePDF(dataStruct: any) {
     return new Promise((resolve, reject) => {
         // first download the ps data
         var xhr = new XMLHttpRequest();
@@ -14,15 +15,15 @@ function optimizePDF(dataStruct) {
             URL.revokeObjectURL(dataStruct.psDataURL);
             //set up EMScripten environment
             GS({
-                preRun: [function ({FS}) {
+                preRun: [function ({ FS }: { FS: any }) {
                     FS.writeFile('input.pdf', new Uint8Array(xhr.response));
                 }],
-                postRun: [function ({FS}) {
-                    var uarray = FS.readFile('output.pdf', {encoding: 'binary'}); //Uint8Array
-                    var blob = new Blob([uarray], {type: "application/octet-stream"});
+                postRun: [function ({ FS }: { FS: any }) {
+                    var uarray = FS.readFile('output.pdf', { encoding: 'binary' }); //Uint8Array
+                    var blob = new Blob([uarray], { type: "application/octet-stream" });
                     var pdfDataURL = URL.createObjectURL(blob);
 
-                    resolve({pdfDataURL: pdfDataURL, url: dataStruct.url});
+                    resolve({ pdfDataURL: pdfDataURL, url: dataStruct.url });
                 }],
                 arguments: [
                     '-sDEVICE=pdfwrite',
@@ -33,13 +34,13 @@ function optimizePDF(dataStruct) {
                     '-dPDFSETTINGS=/ebook',
                     '-DNOPAUSE', '-dBATCH', '-dQUIET', '-dNOOUTERSAVE',
                     '-sOutputFile=output.pdf', 'input.pdf'],
-                print: function (text) {
+                print: function (text: string) {
                     postMessage(createMessageAction(text))
                 },
-                printErr: function (text) {
+                printErr: function (text: string) {
                     reject(text)
                 },
-                setStatus: function (text) {
+                setStatus: function (text: string) {
                     postMessage(createSatusAction(text))
                 },
                 totalDependencies: 0
@@ -54,7 +55,7 @@ function optimizePDF(dataStruct) {
 onmessage = (event) => {
     // console.log("Worker <-", event.data)
 
-    if(event.data.type === "PROCESS") {
+    if (event.data.type === "PROCESS") {
         optimizePDF(event.data.payload).then((res) => {
             postMessage(createResultAction(res))
         }).catch((e) => postMessage(createErrorAction(e)))
