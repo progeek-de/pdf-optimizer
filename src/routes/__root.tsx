@@ -1,5 +1,5 @@
 import { Box, Button, ButtonGroup, Container, CssBaseline, Link, ThemeProvider, Typography } from '@mui/material'
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createLink, createRootRoute, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import '@fontsource/roboto/300.css';
@@ -11,6 +11,8 @@ import '@fontsource/roboto/700.css';
 import theme from "../theme.js";
 //@ts-ignore
 import Logo from "../images/progeek-logo.svg?react"
+
+const ButtonLink = createLink(Button)
 
 export const Route = createRootRoute({
   component: () => (
@@ -25,6 +27,18 @@ export const Route = createRootRoute({
           </Box>
 
           <Box sx={{ mb: 2 }}>
+            <Box sx={{ width: "100%", textAlign: "center" }}>
+              <Typography>Wählen Sie die Funktion</Typography>
+            </Box>
+            <Box>
+              <ButtonGroup variant="contained" color="info">
+                <ButtonLink to="/">Optimizer</ButtonLink>
+                <ButtonLink to="/merge">Merger</ButtonLink>
+              </ButtonGroup>
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
             <Typography variant="h4">Sicherheit und Datenschutz</Typography>
             <Typography>
               Ihre Dokumente <Typography component="span" sx={{ color: "#ED6B1C" }}>verlassen niemals Ihr
@@ -33,19 +47,6 @@ export const Route = createRootRoute({
                 Browser</Typography> durchgeführt, um maximale <Typography component="span" sx={{ color: "#8CB8C9 " }}>Sicherheit
                   und Datenschutz</Typography> zu gewährleisten.
             </Typography>
-          </Box>
-
-
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ width: "100%", textAlign: "center" }}>
-              <Typography>Wählen Sie die Funktion</Typography>
-            </Box>
-            <Box>
-              <ButtonGroup variant="contained" color="info">
-                <Button href="/">Optimizer</Button>
-                <Button href="/merge">Merger</Button>
-              </ButtonGroup>
-            </Box>
           </Box>
 
           <Outlet />

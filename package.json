@@ -18,6 +18,8 @@
     "@tanstack/react-router": "^1.119.0",
     "@tanstack/react-router-devtools": "^1.119.0",
     "react": "^19.1.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
     "tsx": "^4.19.4",

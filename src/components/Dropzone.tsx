@@ -1,38 +1,36 @@
-import { Box, styled, Typography } from "@mui/material"
-import { useState } from "react"
-import { FileWithPath, useDropzone } from "react-dropzone"
-import { formatSize } from "../utils"
+import { Box, styled, Typography } from "@mui/material";
+import { FileWithPath, useDropzone } from "react-dropzone";
 
 interface DropzoneProps {
-  onChange: (files: FileWithPath[]) => void
+  onDrop: (files: FileWithPath[]) => void
 }
 
 const DropzoneBox = styled(Box)(({ theme }) => ({
-  border: `1px dashed ${theme.palette.grey[400]}`,
+  border: `1px dashed ${theme.palette.grey[700]}`,
+  color: theme.palette.grey[700],
+  borderRadius: theme.spacing(1),
   padding: theme.spacing(4),
 }))
 
 const Dropzone = (props: DropzoneProps) => {
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    onDrop: acceptedFiles => props?.onChange(acceptedFiles)
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      "application/pdf": [".pdf"],
+    },
+    onDrop: acceptedFiles => {
+      props?.onDrop(acceptedFiles)
+    }
   })
 
-  const filesList = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.name} - {formatSize(file.size)}
-    </li>
-  ));
-
   return (
-    <DropzoneBox {...getRootProps({ className: "dropzone" })}>
-      <input {...getInputProps()} />
-      {acceptedFiles.length == 0 && <Typography>
-        Ziehe einige Dateien hierher oder klicke, um Dateien auszuwählen.
-      </Typography>}
-      <Box>
-        {filesList}
-      </Box>
-    </DropzoneBox>
+    <>
+      <DropzoneBox {...getRootProps({ className: "dropzone" })}>
+        <input {...getInputProps()} />
+        <Typography>
+          Ziehe einige Dateien hierher oder klicke, um Dateien auszuwählen.
+        </Typography>
+      </DropzoneBox>
+    </>
   )
 }
 

@@ -8,7 +8,10 @@ async function mergePDF(objectUrls: string[]) {
     const files = await Promise.all(
         objectUrls.map(
             url => fetch(url)
-                .then(res => res.arrayBuffer())
+                .then(res => {
+                    URL.revokeObjectURL(url)
+                    return res.arrayBuffer()
+                })
         )
     )
 
