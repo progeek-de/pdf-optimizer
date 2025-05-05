@@ -3,10 +3,9 @@ import Dropzone from '../components/Dropzone'
 import { Box, Button, Link, Typography } from '@mui/material'
 import { FileWithPath } from 'react-dropzone/.'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ACTION_RESULT, createInitAction, createProcessAction } from '../vendor/worker-utils'
+import { ACTION_RESULT, createInitAction, createProcessAction } from '../worker/worker-utils'
 
-//@ts-ignore
-import BackgroundWorker from "../vendor/worker.merge?worker"
+import BackgroundWorker from "../worker/worker.merge?worker"
 import FileList from '../components/FilesList'
 
 export const Route = createFileRoute('/merge')({

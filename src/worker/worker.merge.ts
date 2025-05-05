@@ -1,6 +1,6 @@
-//@ts-ignore
-import GS from "./gs";
+import GS from "../vendor/gs";
 import { ACTION_PROCESS, createErrorAction, createMessageAction, createResultAction } from "./worker-utils";
+
 
 postMessage(createMessageAction("Background worker initialized"))
 
@@ -30,12 +30,12 @@ async function mergePDF(objectUrls: string[]) {
     console.log(args)
 
     GS({
-        preRun: [({ FS }: { FS: any }) => {
+        preRun: [({ FS }) => {
             filesWithNames.forEach(({ filename, content }) => {
                 FS.writeFile(filename, new Uint8Array(content));
             })
         }],
-        postRun: [({ FS }: { FS: any }) => {
+        postRun: [({ FS }) => {
             var uarray = FS.readFile('combined.pdf', { encoding: 'binary' })
             var blob = new Blob([uarray], { type: "application/octet-stream" })
             var pdfDataURL = URL.createObjectURL(blob)

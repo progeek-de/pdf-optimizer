@@ -1,6 +1,5 @@
 import { createErrorAction, createMessageAction, createResultAction, createSatusAction } from "./worker-utils";
-//@ts-ignore
-import GS from "./gs";
+import GS from "../vendor/gs";
 
 postMessage(createMessageAction("Background worker initialized"))
 

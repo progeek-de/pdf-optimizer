@@ -5,11 +5,8 @@ import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import DownloadIcon from '@mui/icons-material/Download';
 import DescriptionIcon from '@mui/icons-material/Description';
-//
-//@ts-ignore
-import { createInitAction, createProcessAction } from "../vendor/worker-utils";
-//@ts-ignore
-import BackgroundWorker from "../vendor/worker?worker"
+import { createInitAction, createProcessAction } from "../worker/worker-utils";
+import BackgroundWorker from "../worker/worker?worker"
 
 Object.defineProperty(Number.prototype, 'fileSize', {
   value: function (a, b, c, d) {
