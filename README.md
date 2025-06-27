@@ -4,6 +4,8 @@
 
 Demo: https://pdf.progeek.de
 
+OpenCode Mirror: https://gitlab.opencode.de/progeek/pdf-optimizer
+
 ---
 
 ## ✨ Overview
