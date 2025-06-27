@@ -23,7 +23,7 @@ PROGEEK PDF Optimizer is a lightweight Progressive Web App that reduces PDF size
 
 | Category    | Details                                                                             |
 | ----------- | ----------------------------------------------------------------------------------- |
-| Compression | Ghostscript presets (`/screen`, `/ebook`, `/printer`) + custom DPI & quality slider |
+| Compression | Ghostscript compressions presets |
 | Preview     | Live before/after filesize and percentage saved                                     |
 | PWA         | Installable on desktop & mobile, offline operation                                  |
 | Web Worker  | Heavy PDF work runs off the UI thread for smooth interaction                        |
